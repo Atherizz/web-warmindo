@@ -16,3 +16,24 @@ if (!hamburger.contains(e.target) && !navbarNav.contains(e.target)) {
 }
 
 })
+
+// Alert Functions
+function closeAlert() {
+    const alert = document.getElementById('alertMessage');
+    if (alert) {
+        alert.classList.add('hiding');
+        setTimeout(() => {
+            alert.remove();
+        }, 400);
+    }
+}
+
+// Auto close alert after 5 seconds
+document.addEventListener('DOMContentLoaded', function() {
+    const alert = document.getElementById('alertMessage');
+    if (alert) {
+        setTimeout(() => {
+            closeAlert();
+        }, 5000);
+    }
+});

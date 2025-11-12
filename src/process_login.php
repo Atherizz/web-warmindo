@@ -3,72 +3,77 @@ if (session_status() === PHP_SESSION_NONE) {
   session_start();
 }
 
-require 'function/function.php';
+require 'function/function.php'; 
 
-// Cek cookie remember me
-if(isset($_COOKIE["id"]) && isset($_COOKIE["password"])) {
-  $id = $_COOKIE["id"];
-  $password = $_COOKIE["password"];
-  
-  $query = "SELECT email FROM users WHERE id = $1";
-  $result = pg_query_params($conn, $query, array($id));
-  
+function redirectByRole(string $role): void {
+  $role = strtoupper(trim($role));
+  if ($role === 'ADMIN') {
+    header('Location: dashboard.php');
+  } else {
+    header('Location: cart.php');
+  }
+  exit;
+}
+
+
+if (isset($_COOKIE['id'], $_COOKIE['password'])) {
+  $id = $_COOKIE['id'];
+  $passwordCookie = $_COOKIE['password']; // kamu memang isi email di cookie 'password'
+
+  $query  = "SELECT email, role FROM users WHERE id = $1";
+  $result = pg_query_params($conn, $query, [$id]);
+
   if ($result && pg_num_rows($result) > 0) {
     $row = pg_fetch_assoc($result);
-    
-    if ($password === $row["email"]) {
-      $_SESSION["login"] = true;
-      $_SESSION["id"] = $id;
-      $_SESSION["email"] = $row["email"];
-      header("Location: dashboard.php");
-      exit;
+
+    if ($passwordCookie === $row['email']) {
+      $_SESSION['login'] = true;
+      $_SESSION['id']    = $id;
+      $_SESSION['email'] = $row['email'];
+      $_SESSION['role']  = $row['role'];
+
+      redirectByRole($row['role']);
     }
   }
 }
 
-// Proses login dari form
-if(isset($_POST["login"])) {
+if (isset($_POST['login'])) {
+  $email    = trim($_POST['email'] ?? '');
+  $password = trim($_POST['password'] ?? '');
 
-  $email = trim($_POST["email"]);
-  $password = trim($_POST["password"]);
-
-  // Validasi input kosong
-  if (empty($email) || empty($password)) {
-    header("Location: login.php?error=empty");
+  if ($email === '' || $password === '') {
+    header('Location: login.php?error=empty');
     exit;
   }
 
-  $query = "SELECT * FROM users WHERE email = $1";
-  $result = pg_query_params($conn, $query, array($email));
+  $query  = "SELECT id, email, password, role FROM users WHERE email = $1";
+  $result = pg_query_params($conn, $query, [$email]);
 
-  if ($result && pg_num_rows($result) == 1) {
+  if ($result && pg_num_rows($result) === 1) {
     $row = pg_fetch_assoc($result);
-    
-    // Bandingkan password
-    if ($password === $row["password"]) {
-      $_SESSION["login"] = true;
-      $_SESSION["id"] = $row["id"];
-      $_SESSION["email"] = $row["email"];
-      
-      // Set cookie jika remember me dicentang
-      if (isset($_POST["remember"])) {
-        setcookie("id", $row["id"], time()+60*60, "/");
-        setcookie("password", $row["email"], time()+60*60, "/");
+
+    if (password_verify($password, $row['password'])) {
+      $_SESSION['login'] = true;
+      $_SESSION['id']    = $row['id'];
+      $_SESSION['email'] = $row['email'];
+      $_SESSION['role']  = $row['role'];
+
+      if (isset($_POST['remember'])) {
+        setcookie('id', $row['id'], time() + 60*60, '/');
+        setcookie('password', $row['email'], time() + 60*60, '/');
       }
 
-      header("Location: dashboard.php");
-      exit;
-
+      redirectByRole($row['role']);
     } else {
-      header("Location: login.php?error=wrong");
+      header('Location: login.php?error=wrong');
       exit;
     }
   } else {
-    header("Location: login.php?error=notfound");
+    header('Location: login.php?error=notfound');
     exit;
   }
 }
 
-header("Location: login.php");
+/** Default: balik ke halaman login */
+header('Location: login.php');
 exit;
-?>

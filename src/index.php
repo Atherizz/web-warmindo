@@ -1,20 +1,39 @@
 <?php
-
+session_start();
 require 'function/function.php';
 
-
 $sql = 'SELECT name, price, image_url FROM menu_items ORDER BY id';
-
 $result = pg_query($conn, $sql);
 if (!$result) {
-    die('Query gagal: ' . pg_last_error($conn));
+  die('Query gagal: ' . pg_last_error($conn));
 }
-
-$menuItems = pg_fetch_all($result);
+$menuItems = pg_fetch_all($result) ?: [];
 
 $fileName = 'style.css';
 require 'components/header.php';
 ?>
+
+<?php if (isset($_SESSION['error'])): ?>
+    <div class="alert alert-error" id="alertMessage">
+        <div class="alert-content">
+            <i data-feather="alert-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['error']) ?></span>
+            <button class="alert-close" onclick="closeAlert()">&times;</button>
+        </div>
+    </div>
+    <?php unset($_SESSION['error']); ?>
+<?php endif; ?>
+
+<?php if (isset($_SESSION['success'])): ?>
+    <div class="alert alert-success" id="alertMessage">
+        <div class="alert-content">
+            <i data-feather="check-circle"></i>
+            <span><?= htmlspecialchars($_SESSION['success']) ?></span>
+            <button class="alert-close" onclick="closeAlert()">&times;</button>
+        </div>
+    </div>
+    <?php unset($_SESSION['success']); ?>
+<?php endif; ?>
 
 <div class="site-content">
     <section class="hero" id="home">

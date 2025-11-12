@@ -1,7 +1,20 @@
-<?php 
-$fileName = 'cart.css';
-require 'components/header.php';  
+<?php
+session_start();
 
+if (!isset($_SESSION['login']) || $_SESSION['login'] !== true) {
+  $_SESSION['error'] = '⚠️ Silakan login terlebih dahulu untuk mengakses keranjang belanja!';
+  header('Location: index.php');
+  exit;
+}
+
+if (!isset($_SESSION['role']) || strtoupper(trim($_SESSION['role'])) !== 'USER') {
+  $_SESSION['error'] = '❌ Akses ditolak: halaman ini khusus untuk pengguna dengan role USER.';
+  header('Location: index.php');
+  exit;
+}
+
+$fileName = 'cart.css';
+require 'components/header.php';
 ?>
      <div class="site-content">
         <section class="menu-grid-section">
