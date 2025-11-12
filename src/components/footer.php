@@ -36,10 +36,16 @@
       <p class="footer-creator">Created by <a href="">SaveroAthallah</a></p>
     </div>
   </footer>
+  
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <!-- Feather Icons -->
   <script>
     feather.replace();
   </script>
 
+  <!-- Custom JS -->
   <script src="js/script.js"></script>
 </body>
 

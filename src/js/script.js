@@ -1,29 +1,11 @@
-// toggle class active  
-const navbarNav = document.querySelector('.navbar-nav');
-
-// ketika hanburger menu di click
-document.querySelector('#hamburger-menu').onclick = () => {
-
-    navbarNav.classList.toggle('active');
-}
-
-// Klik diluar sidebar untuk menghilangkan nav
-const hamburger = document.querySelector('#hamburger-menu');
-
-document.addEventListener('click', function(e){
-if (!hamburger.contains(e.target) && !navbarNav.contains(e.target)) {
-    navbarNav.classList.remove('active');
-}
-
-})
-
 // Alert Functions
 function closeAlert() {
     const alert = document.getElementById('alertMessage');
     if (alert) {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(alert);
         alert.classList.add('hiding');
         setTimeout(() => {
-            alert.remove();
+            bsAlert.close();
         }, 400);
     }
 }
@@ -36,4 +18,24 @@ document.addEventListener('DOMContentLoaded', function() {
             closeAlert();
         }, 5000);
     }
+    
+    // Smooth scroll untuk links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            const href = this.getAttribute('href');
+            if (href !== '#' && href !== '') {
+                e.preventDefault();
+                const target = document.querySelector(href);
+                if (target) {
+                    const navbarHeight = document.querySelector('.navbar').offsetHeight;
+                    const targetPosition = target.offsetTop - navbarHeight;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        });
+    });
 });
+
